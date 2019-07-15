@@ -1,29 +1,46 @@
-let vid;
+let video;
+let image;
 let angle = 0;
 
-function preload(){
-  vid = createVideo(['assets/test.mp4']);
-}
-
 function setup() {
-  createCanvas(800, 600, WEBGL);  
-  vid.elt.muted = true;
-  vid.loop();
-  vid.hide();
+  video = createVideo(['assets/mcu-wave.mp4']);
+  video.elt.muted = true;
+  video.loop();
+  video.hide();
+  image = loadImage('assets/background.png')
+  createCanvas(800, 600, WEBGL);
 }
 
-function drawCube(angle){
-  push();
-  //rotateZ(angle * 0.1);
-  rotateX(0.5);
-  rotateY(angle * 0.1);
-  texture(vid);
+function drawBoxWithVideo(angle){
+  texture(video);
   box(200, 200, 200);
-  pop();
+}
+
+function drawBoxWithImage(angle){
+  texture(image);
+  box(200, 200, 200);
+}
+
+function drawCustomShap(angle){
+  background('rgb(100, 100, 100)');
+
+  fill(0)
+  //texture(image);
+  beginShape();
+  vertex(0, 0, 50, 0, 0);
+  vertex(100, 0, 50, 1, 0);
+  vertex(100, 100, 50, 1, 1);
+  vertex(0, 100, 50, 0, 1);
+  endShape(CLOSE);
 }
 
 function draw() {
-  background('rgb(100, 100, 100)');
-  drawCube(angle);
+  rotateZ(0);
+  rotateX(0.5);
+  rotateY(angle * 0.1);
+
+  //drawBoxWithImage(angle);
+  drawBoxWithVideo(angle);
+  //drawCustomShap(angle);
   angle += 0.05;
 }
