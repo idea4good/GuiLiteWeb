@@ -7,7 +7,7 @@ function setup() {
   video.elt.muted = true;
   video.loop();
   video.hide();
-  image = loadImage('assets/background.png')
+  image = loadImage('assets/background.jpg')
   createCanvas(800, 600, WEBGL);
 }
 
