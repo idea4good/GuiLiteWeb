@@ -16,7 +16,7 @@ function setup() {
   layer1 = loadImage('assets/layer1.png')
   layer2 = loadImage('assets/layer2.png')
   something = createGraphics(200, 200);
-  createCanvas(700, 600, WEBGL);
+  createCanvas(800, 600, WEBGL);
 }
 
 function drawPlane(in_texture, x, y, z, rX = -1.2, rY = 0, rZ = 0){
@@ -89,10 +89,10 @@ function updateLayersVrect(layerRx = -1.2){
   something.background(255, 255, 0);
   something.strokeWeight(4);
   something.rect(0, 0, stepLayerVisibleRect, stepLayerVisibleRect);
-  something.fill(0, 0, 0);
+  something.fill(62, 72, 204);
   something.textSize(14);
   something.textStyle(BOLD);
-  something.text(' LAYER 2\nVISIBLE RECT', stepLayerVisibleRect, stepLayerVisibleRect);
+  something.text(' Visble RECT\nLayer 2', stepLayerVisibleRect, stepLayerVisibleRect);
   showLayers(layer1, something, layerRx);
 }
 
@@ -142,7 +142,7 @@ function draw() {
     updateLayersVrect(0);
     break;
   	default:
-  	step = step_surface = step_layer = stepShift = stepLayerVisibleRect;
+  	step = step_surface = step_layer = stepShift = stepLayerVisibleRect = 0;
   	displayRx = -1.2; displayY = 0;
     layerRx = -1.2;
   	break;
