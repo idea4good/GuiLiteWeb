@@ -13,4 +13,5 @@
 ## 教程：GuiLite底层绘制原理
 ![GuiLiteGraphic](doc/GuiLiteGraphic.gif)
 - 通过3D程序，解释GuiLite滑动，及多层叠加原理
+- [视频](https://v.youku.com/v_show/id_XNDI4ODE1ODcwOA)
 - [Source code](Graphic/main.js)

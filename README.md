@@ -13,4 +13,5 @@
 ## Tutorial: How GuiLite graphic work?
 ![GuiLiteGraphic](doc/GuiLiteGraphic.gif)
 - This 3D programm is used to show how GuiLite multi-layers work.
+- [Video](https://www.youtube.com/watch?v=QzZJnU5KmDQ)
 - [Source code](Graphic/main.js)
