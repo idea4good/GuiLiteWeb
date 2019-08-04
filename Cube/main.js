@@ -11,17 +11,17 @@ function setup() {
   createCanvas(800, 600, WEBGL);
 }
 
-function drawBoxWithVideo(angle){
+function drawBoxWithVideo(){
   texture(video);
   box(200, 200, 200);
 }
 
-function drawBoxWithImage(angle){
+function drawBoxWithImage(){
   texture(image);
   box(200, 200, 200);
 }
 
-function drawCustomShap(angle){
+function drawCustomShap(){
   background('rgb(100, 100, 100)');
 
   fill(0)
@@ -39,8 +39,8 @@ function draw() {
   rotateX(0.5);
   rotateY(angle * 0.1);
 
-  //drawBoxWithImage(angle);
-  drawBoxWithVideo(angle);
-  //drawCustomShap(angle);
+  //drawBoxWithImage();
+  drawBoxWithVideo();
+  //drawCustomShap();
   angle += 0.05;
 }
