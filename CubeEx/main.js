@@ -73,13 +73,18 @@ function startWebAssembly(index, wasmFilePath, drawPixel) {
 const cubeSize = 180;
 const gain = 1;
 const animationFrames = 200;
-let graphic1, graphic2;
+let graphic1, graphic2, graphic3;
 
 function setup() {
   createCanvas(500, 500, WEBGL);
   angleMode(DEGREES);
   graphic1 = createGraphics(240, 320);
   graphic2 = createGraphics(240, 320);
+  graphic3 = createGraphics(240, 320);
+  graphic3.background(210, 0, 0)
+  graphic3.fill(255)
+  graphic3.textSize(64)
+  graphic3.text('   👑\nGuiLite\n on 3D', 20, 100);
   startWebAssembly(0, 'libs/particle.wasm', drawPixelOnGraphic1);
   startWebAssembly(1, 'libs/wave.wasm', drawPixelOnGraphic2);
 }
@@ -95,7 +100,7 @@ const faces = [
 
 function draw() {
   const progress = min(frameCount / animationFrames, 1);
-  background('lightblue');
+  background('gray');
   noStroke();
   rotateX(-30);
   rotateY(frameCount);
@@ -167,7 +172,7 @@ function textureFace(face, i, progress) {
       texture(graphic2)
     break;
     default:
-      return fill(`rgb(${face[3]})`);
+      texture(graphic3)
     break;
   }
 }
