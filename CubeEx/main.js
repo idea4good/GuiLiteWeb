@@ -1,44 +1,41 @@
-
-let wasm = 'libs/main.wasm';
-let instance = null;
+//////////////////////// WebAssembly Code ////////////////////////
 let memoryStates = new WeakMap();
 let mode = 1
 let buffer = null;
 
-function startWebAssembly() {
-
-  function syscall(instance, n, args) {
-    switch (n) {
-      default:
-        // console.log("Syscall " + n + " NYI.");
-        break;
-      case /* brk */ 45: return 0;
-      case /* writev */ 146:
-        return instance.exports.writev_c(args[0], args[1], args[2]);
-      case /* mmap2 */ 192:
-        // debugger;
-        const memory = instance.exports.memory;
-        let memoryState = memoryStates.get(instance);
-        const requested = args[1];
-        if (!memoryState) {
-          memoryState = {
-            object: memory,
-            currentPosition: memory.buffer.byteLength,
-          };
-          memoryStates.set(instance, memoryState);
-        }
-        let cur = memoryState.currentPosition;
-        if (cur + requested > memory.buffer.byteLength) {
-          const need = Math.ceil((cur + requested - memory.buffer.byteLength) / 65536);
-          memory.grow(need);
-        }
-        memoryState.currentPosition += requested;
-        return cur;
-    }
+function syscall(instance, n, args) {
+  switch (n) {
+    default:
+      // console.log("Syscall " + n + " NYI.");
+      break;
+    case /* brk */ 45: return 0;
+    case /* writev */ 146:
+      return instance.exports.writev_c(args[0], args[1], args[2]);
+    case /* mmap2 */ 192:
+      // debugger;
+      const memory = instance.exports.memory;
+      let memoryState = memoryStates.get(instance);
+      const requested = args[1];
+      if (!memoryState) {
+        memoryState = {
+          object: memory,
+          currentPosition: memory.buffer.byteLength,
+        };
+        memoryStates.set(instance, memoryState);
+      }
+      let cur = memoryState.currentPosition;
+      if (cur + requested > memory.buffer.byteLength) {
+        const need = Math.ceil((cur + requested - memory.buffer.byteLength) / 65536);
+        memory.grow(need);
+      }
+      memoryState.currentPosition += requested;
+      return cur;
   }
+}
 
+function startWebAssembly(wasmFilePath, drawPixel) {
   let s = "";
-  fetch(wasm).then(response =>
+  fetch(wasmFilePath).then(response =>
     response.arrayBuffer()
   ).then(bytes =>
     WebAssembly.instantiate(bytes, {
@@ -61,19 +58,18 @@ function startWebAssembly() {
         },
       
         drawGuiLitePixel: function (x, y, color) {
-          graphic.stroke('rgb(' + ((color & 0xff0000) >> 16) + ', ' + ((color & 0xff00) >> 8) + ', ' + (color & 0xff) + ')');
-          graphic.rect(x, y, 1, 1);
+          drawPixel(x, y, color)
         }
       }
     })
   ).then(results => {
-    instance = results.instance;
-    instance.exports.main(mode);
+    instance = results.instance
+    instance.exports.main(mode)
   }).catch(console.error);
 }
 
 //////////////////////// Cube Code ////////////////////////
-
+let instance = null;
 const cubeSize = 180;
 const gain = 1;
 const animationFrames = 200;
@@ -83,7 +79,7 @@ function setup() {
   createCanvas(500, 500, WEBGL);
   angleMode(DEGREES);
   graphic = createGraphics(240, 320);
-  startWebAssembly();
+  startWebAssembly('libs/particle.wasm', drawPixelOnGraphic);
 }
 
 const faces = [
@@ -152,4 +148,9 @@ function textureFace(face, i, progress) {
   } else {
     return fill(`rgb(${face[3]})`);
   }
+}
+
+function drawPixelOnGraphic(x, y, color) {
+  graphic.stroke('rgb(' + ((color & 0xff0000) >> 16) + ', ' + ((color & 0xff00) >> 8) + ', ' + (color & 0xff) + ')');
+  graphic.rect(x, y, 1, 1);
 }
