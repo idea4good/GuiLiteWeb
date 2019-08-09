@@ -165,11 +165,11 @@ function textureFace(face, i, progress) {
   switch(i){
     case 0:
     case 2:
-      texture(graphic1)
+      texture(graphic2)
     break;
     case 1:
     case 3:
-      texture(graphic2)
+      texture(graphic1)
     break;
     default:
       texture(graphic3)
