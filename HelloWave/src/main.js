@@ -73,7 +73,7 @@ fetch(wasm).then(response =>
 
   if(mode != 0) { // mode 1
     setInterval(function(){
-        instance.exports.updateHelloParticle()
+        instance.exports.updateHelloWave()
       }, 30);
     return;
   }
@@ -81,10 +81,10 @@ fetch(wasm).then(response =>
   // mode 0
   var buffer = new Uint8Array(instance.exports.memory.buffer)
   setInterval(function(){
-    var pointer = instance.exports.updateHelloParticle()
+    var pointer = instance.exports.updateHelloWave()
     for(let y = 0; y < 320; y++) {
       for(let x = 0; x < 240; x++) {
-        ctx.fillStyle = 'rgb(' + buffer[pointer + 1] + ', ' + buffer[pointer + 2] + ', ' + buffer[pointer + 3] + ')'
+        ctx.fillStyle = 'rgb(' + buffer[pointer + 2] + ', ' + buffer[pointer + 1] + ', ' + buffer[pointer] + ')'
         ctx.fillRect(x, y, 1, 1)
         pointer = pointer + 4
       }

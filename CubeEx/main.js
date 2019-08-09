@@ -76,7 +76,7 @@ function startWebAssembly() {
 
 const cubeSize = 180;
 const gain = 1;
-const animationFrames = 100;
+const animationFrames = 200;
 let graphic;
 
 function setup() {
