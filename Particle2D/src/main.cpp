@@ -285,8 +285,8 @@ typedef enum
 
 struct EXTERNAL_GFX_OP
 {
-    void(*draw_pixel)(int x, int y, unsigned int rgb);
-    void(*fill_rect)(int x0, int y0, int x1, int y1, unsigned int rgb);
+    void(*draw_pixel)(int x, int y, int rgb);
+    void(*fill_rect)(int x0, int y0, int x1, int y1, int rgb);
 };
 
 class c_display;
@@ -811,7 +811,7 @@ int c_display::merge_surface(c_surface* s0, c_surface* s1, int x0, int x1, int y
     }
     else if(m_color_bytes == 4)
     {
-        void(*draw_pixel)(int x, int y, unsigned int rgb) = ((c_surface_no_fb*)s0)->m_gfx_op->draw_pixel;
+        void(*draw_pixel)(int x, int y, int rgb) = ((c_surface_no_fb*)s0)->m_gfx_op->draw_pixel;
         for (int y = y0; y <= y1; y++)
         {
             //Left surface
@@ -828,7 +828,7 @@ int c_display::merge_surface(c_surface* s0, c_surface* s1, int x0, int x1, int y
     }
     else if (m_color_bytes == 2)
     {
-        void(*draw_pixel)(int x, int y, unsigned int rgb) = ((c_surface_no_fb*)s0)->m_gfx_op->draw_pixel;
+        void(*draw_pixel)(int x, int y, int rgb) = ((c_surface_no_fb*)s0)->m_gfx_op->draw_pixel;
         for (int y = y0; y <= y1; y++)
         {
             //Left surface
@@ -2548,17 +2548,30 @@ void create_ui(void* phy_fb, int screen_width, int screen_height, int color_byte
     s_surface->fill_rect(0, 0, UI_WIDTH - 1, UI_HEIGHT - 1, 0, Z_ORDER_LEVEL_0);
 }
 
+///////////////// WebAssembly Code /////////////////
+
 #include <stdio.h>
 #include <sys/uio.h>
 
 #define WASM_EXPORT __attribute__((visibility("default")))
 
-static void* p;
+/* External function that is implemented in JavaScript. */
+extern "C" void drawGuiLitePixel(int x, int y, int color);
+struct EXTERNAL_GFX_OP my_gfx_op;
+
 WASM_EXPORT
-int main(void) {
-  p = calloc(240 * 320, 4);
-  create_ui(p, 240, 320, 4, NULL);
-  printf("GUI created\n");
+int main(int mode) {
+  switch(mode){
+    case 0:
+      create_ui(calloc(240 * 320, 4), 240, 320, 4, NULL);
+    break;
+    default:
+      my_gfx_op.draw_pixel = drawGuiLitePixel;
+	    my_gfx_op.fill_rect = NULL;//gfx_fill_rect;
+      create_ui(NULL, 240, 320, 4, &my_gfx_op);
+    break;
+  }
+  printf("GuiLite ready\n");
 }
 
 WASM_EXPORT
@@ -2567,9 +2580,6 @@ extern "C" unsigned char* updateHelloParticle(void) {
     particle_array[i].move();
     particle_array[i].draw();
   }
-  //printf("GUI updated\n");
-  //return (unsigned char*)"hello";
-  //memset(p, 33, 240 * 320 * 4);
   return (unsigned char*)display->get_updated_fb(NULL, NULL);
 }
 

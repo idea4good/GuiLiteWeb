@@ -1,67 +1,12 @@
-const cubeSize = 180;
-const gain = 1.1;
-const animationFrames = 300;
-const transparency = 0.3;
-let isWAready = false;
+
+let wasm = 'libs/main.wasm';
 let instance = null;
-let buffer;
-let graphic;
-
-function setup() {
-  createCanvas(500, 500, WEBGL);
-  angleMode(DEGREES);
-  graphic = createGraphics(240, 320);
-  startWebAssembly();
-}
-
-const faces = [
-  [0,   0, 0, '255, 0, 0'],
-  [0,  90, 0, '0, 255, 0'],
-  [0, 180, 0, '255, 0, 0'],
-  [0, -90, 0, '0, 255, 0'],
-  [90,  0, 0, '0, 0, 255'],
-  [270, 0, 0, '0, 0, 255'],
-  ];
-
-function textureFace(face, index) {
-  if(!isWAready){
-    return;
-  }
-
-  var pointer = instance.exports.updateHelloParticle()
-  for(let y = 0; y < 320; y++) {
-    for(let x = 0; x < 240; x++) {
-      graphic.stroke('rgb(' + buffer[pointer + 1] + ', ' + buffer[pointer + 2] + ', ' + buffer[pointer + 3] + ')');
-      graphic.ellipse(x, y, 1, 1);
-      pointer = pointer + 4;
-    }
-  }
-  texture(graphic);
-}
-
-function draw() {
-  const progress = min(frameCount / animationFrames, 1);
-  background('lightblue');
-  noStroke();
-  //rotateX(-30);
-  rotateY(frameCount);
-  faces.forEach((face, i) => {
-    fill(`rgba(${face[3]}, ${transparency})`);
-    textureFace(face, i);
-
-    push();
-    rotateX(face[0] * progress);
-    rotateY(face[1] * progress);
-    rotateZ(face[2] * progress);
-    translate(0, 0, cubeSize / 2 * gain * progress);
-    plane(cubeSize);
-    pop();
-  });
-}
+let memoryStates = new WeakMap();
+let mode = 1
+let buffer = null;
 
 function startWebAssembly() {
-  let x = 'libs/main.wasm';
-  let memoryStates = new WeakMap();
+
   function syscall(instance, n, args) {
     switch (n) {
       default:
@@ -71,7 +16,7 @@ function startWebAssembly() {
       case /* writev */ 146:
         return instance.exports.writev_c(args[0], args[1], args[2]);
       case /* mmap2 */ 192:
-        debugger;
+        // debugger;
         const memory = instance.exports.memory;
         let memoryState = memoryStates.get(instance);
         const requested = args[1];
@@ -93,7 +38,7 @@ function startWebAssembly() {
   }
 
   let s = "";
-  fetch(x).then(response =>
+  fetch(wasm).then(response =>
     response.arrayBuffer()
   ).then(bytes =>
     WebAssembly.instantiate(bytes, {
@@ -113,13 +58,98 @@ function startWebAssembly() {
           } else {
             s += c;
           }
+        },
+      
+        drawGuiLitePixel: function (x, y, color) {
+          graphic.stroke('rgb(' + ((color & 0xff0000) >> 16) + ', ' + ((color & 0xff00) >> 8) + ', ' + (color & 0xff) + ')');
+          graphic.rect(x, y, 1, 1);
         }
       }
     })
   ).then(results => {
     instance = results.instance;
-    instance.exports.main();
-    buffer = new Uint8Array(instance.exports.memory.buffer)
-    isWAready = true;
+    instance.exports.main(mode);
   }).catch(console.error);
+}
+
+//////////////////////// Cube Code ////////////////////////
+
+const cubeSize = 180;
+const gain = 1;
+const animationFrames = 100;
+let graphic;
+
+function setup() {
+  createCanvas(500, 500, WEBGL);
+  angleMode(DEGREES);
+  graphic = createGraphics(240, 320);
+  startWebAssembly();
+}
+
+const faces = [
+  [0,   0, 0, '255, 0, 0'],
+  [0,  90, 0, '0, 255, 0'],
+  [0, 180, 0, '255, 0, 0'],
+  [0, -90, 0, '0, 255, 0'],
+  [90,  0, 0, '0, 0, 255'],
+  [270, 0, 0, '0, 0, 255'],
+  ];
+
+function draw() {
+  const progress = min(frameCount / animationFrames, 1);
+  background('lightblue');
+  noStroke();
+  rotateX(-30);
+  rotateY(frameCount);
+
+  if(progress == 1) {
+    updateGraphic();
+  }
+  
+  faces.forEach((face, i) => {
+    textureFace(face, i, progress)
+
+    push();
+    rotateX(face[0] * progress);
+    rotateY(face[1] * progress);
+    rotateZ(face[2] * progress);
+    translate(0, 0, cubeSize / 2 * gain * progress);
+    plane(cubeSize);
+    pop();
+  });
+}
+
+function updateGraphic() {
+  if(!instance){
+    return;
+  }
+
+  var pointer = instance.exports.updateHelloParticle()
+
+  if(mode != 0){
+    return;
+  }
+
+  if(buffer == null){
+    buffer = new Uint8Array(instance.exports.memory.buffer)
+  }
+  for(let y = 0; y < 320; y++) {
+    for(let x = 0; x < 240; x++) {
+      graphic.stroke('rgb(' + buffer[pointer + 1] + ', ' + buffer[pointer + 2] + ', ' + buffer[pointer + 3] + ')');
+      graphic.rect(x, y, 1, 1);
+      pointer = pointer + 4;
+    }
+  }
+}
+
+function textureFace(face, i, progress) {
+  if(progress < 1) {
+    return fill(`rgba(${face[3]}, 0.5)`);
+  }
+
+  if(i == 0 || i == 2) {
+    texture(graphic)
+  } else {
+    return fill(`rgb(${face[3]})`);
+  }
 }

@@ -1,7 +1,8 @@
-let x = '../out/main.wasm';
-
+let wasm = '../out/main.wasm';
 let instance = null;
 let memoryStates = new WeakMap();
+let mode = 1
+let ctx
 
 function syscall(instance, n, args) {
   switch (n) {
@@ -12,7 +13,7 @@ function syscall(instance, n, args) {
     case /* writev */ 146:
       return instance.exports.writev_c(args[0], args[1], args[2]);
     case /* mmap2 */ 192:
-      debugger;
+      // debugger;
       const memory = instance.exports.memory;
       let memoryState = memoryStates.get(instance);
       const requested = args[1];
@@ -34,7 +35,7 @@ function syscall(instance, n, args) {
 }
 
 let s = "";
-fetch(x).then(response =>
+fetch(wasm).then(response =>
   response.arrayBuffer()
 ).then(bytes =>
   WebAssembly.instantiate(bytes, {
@@ -46,6 +47,7 @@ fetch(x).then(response =>
       __syscall4: function __syscall4(n, a, b, c, d) { return syscall(instance, n, [a, b, c, d]); },
       __syscall5: function __syscall5(n, a, b, c, d, e) { return syscall(instance, n, [a, b, c, d, e]); },
       __syscall6: function __syscall6(n, a, b, c, d, e, f) { return syscall(instance, n, [a, b, c, d, e, f]); },
+      
       putc_js: function (c) {
         c = String.fromCharCode(c);
         if (c == "\n") {
@@ -54,26 +56,38 @@ fetch(x).then(response =>
         } else {
           s += c;
         }
+      },
+      
+      drawGuiLitePixel: function (x, y, color) {
+        ctx.fillStyle = 'rgb(' + ((color & 0xff0000) >> 16) + ', ' + ((color & 0xff00) >> 8) + ', ' + (color & 0xff) + ')'
+        ctx.fillRect(x, y, 1, 1)
       }
     }
   })
 ).then(results => {
+  var canvas = document.getElementById("Canvas")
+  ctx = canvas.getContext("2d")
+
   instance = results.instance;
-  var canvas = document.getElementById("Canvas");
-  var ctx = canvas.getContext("2d");
+  instance.exports.main(mode);
 
-  instance.exports.main();
-
+  if(mode != 0) { // mode 1
+    setInterval(function(){
+        instance.exports.updateHelloParticle()
+      }, 30);
+    return;
+  }
+  
+  // mode 0
   var buffer = new Uint8Array(instance.exports.memory.buffer)
   setInterval(function(){
     var pointer = instance.exports.updateHelloParticle()
     for(let y = 0; y < 320; y++) {
       for(let x = 0; x < 240; x++) {
-        ctx.fillStyle = 'rgb(' + buffer[pointer + 1] + ', ' + buffer[pointer + 2] + ', ' + buffer[pointer + 3] + ')';
-        ctx.fillRect(x, y, 1, 1);
-        pointer = pointer + 4;
+        ctx.fillStyle = 'rgb(' + buffer[pointer + 1] + ', ' + buffer[pointer + 2] + ', ' + buffer[pointer + 3] + ')'
+        ctx.fillRect(x, y, 1, 1)
+        pointer = pointer + 4
       }
     }
-    //console.log('timer');
   }, 30);
 }).catch(console.error);
