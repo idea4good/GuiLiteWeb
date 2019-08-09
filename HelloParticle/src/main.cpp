@@ -2523,7 +2523,7 @@ public:
         m_x_velocity = (rand() % 7) - 3; m_y_velocity = -15 - (rand() % 4);
     }
     void move() {
-        s_surface->fill_rect(m_x, m_y, m_x + PARTICAL_WITH - 1, m_y + PARTICAL_HEIGHT - 1, 0, Z_ORDER_LEVEL_0);//clear previous image
+        s_surface->fill_rect(m_x, m_y, m_x + PARTICAL_WITH - 1, m_y + PARTICAL_HEIGHT - 1, GL_RGB(14, 31, 143), Z_ORDER_LEVEL_0);//clear previous image
         m_x_velocity += ACC_X; m_y_velocity += ACC_Y;
         m_x += m_x_velocity; m_y += m_y_velocity;
         if (m_x < 0 || (m_x + PARTICAL_WITH - 1) >= UI_WIDTH || m_y < 0 || (m_y + PARTICAL_HEIGHT - 1) >= UI_HEIGHT) {
@@ -2545,7 +2545,7 @@ void create_ui(void* phy_fb, int screen_width, int screen_height, int color_byte
     display = new c_display(phy_fb, screen_width, screen_height, UI_WIDTH, UI_HEIGHT, color_bytes, 1, gfx_op);
     s_surface = display->alloc_surface((void*)1, Z_ORDER_LEVEL_0);
     s_surface->set_active(true);
-    s_surface->fill_rect(0, 0, UI_WIDTH - 1, UI_HEIGHT - 1, 0, Z_ORDER_LEVEL_0);
+    s_surface->fill_rect(0, 0, UI_WIDTH - 1, UI_HEIGHT - 1, GL_RGB(14, 31, 143), Z_ORDER_LEVEL_0);
 }
 
 ///////////////// WebAssembly Code /////////////////
