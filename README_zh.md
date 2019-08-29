@@ -20,18 +20,12 @@
 - Inject Guilite Sample(HelloWave) into Web page
 - Run it by open "HelloWave/src/main.html" with Microsoft Edge
 
-## Tutorial: How GuiLite graphic work?
-![GuiLiteGraphic](doc/GuiLiteGraphic.gif)
-- This 3D programm is used to show how GuiLite multi-layers work.
-- [Video](https://www.youtube.com/watch?v=QzZJnU5KmDQ)
-- [Source code](Graphic/main.js)
-- Run it by open "Graphic/index.html" with Microsoft Edge
-
 ## 教程：GuiLite底层绘制原理
 ![GuiLiteGraphic](doc/GuiLiteGraphic.gif)
 - 通过3D程序，解释GuiLite滑动，及多层叠加原理
 - [视频](https://v.youku.com/v_show/id_XNDI4ODE1ODcwOA)
 - [Source code](Graphic/main.js)
+- Run it by open "Graphic/index.html" with Microsoft Edge
 
 ## GuiLite 立方体
 ![GuiLiteCube](doc/GuiLiteCube.gif)
